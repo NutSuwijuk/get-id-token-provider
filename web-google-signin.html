@@ -134,13 +134,22 @@
         const GOOGLE_CLIENT_ID = '266274251473-e88r4lf2g36gfigqdn31tm0rdij6pi1p.apps.googleusercontent.com';
         
         // Apple Service ID - ต้องเปลี่ยนเป็น Service ID ของคุณ (ถ้าต้องการใช้ Apple Sign-In)
+        // หาได้จาก: Apple Developer Portal > Certificates, Identifiers & Profiles > Identifiers > Services IDs
+        // วิธีสร้าง:
+        // 1. ไปที่ https://developer.apple.com/account/resources/identifiers/list/serviceId
+        // 2. กด + เพื่อสร้าง Service ID ใหม่
+        // 3. ตั้งชื่อและ Identifier (เช่น 'th.co.mfec.appsol.firebasetest')
+        // 4. เปิดใช้งาน "Sign in with Apple" และตั้งค่า Website URLs
+        // 5. ตั้งค่า Return URLs: เพิ่ม origin ของคุณ (เช่น 'https://yourdomain.com' หรือ 'http://localhost:8080')
+        // 6. ตั้งค่า Domains: เพิ่ม domain ของคุณ (เช่น 'localhost' หรือ 'yourdomain.com')
+        // ตัวอย่าง: 'th.co.mfec.appsol.firebasetest'
         const APPLE_SERVICE_ID = 'th.co.mfec.appsol.firebasetest';
         
         // ตรวจสอบว่า Google Client ID ถูกตั้งค่าหรือยัง
         function checkGoogleClientID() {
             // ตรวจสอบว่าไม่ใช่ placeholder และมีรูปแบบที่ถูกต้อง
-            if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com' || 
-                GOOGLE_CLIENT_ID === '' || 
+            if (GOOGLE_CLIENT_ID === '266274251473-e88r4lf2g36gfigqdn31tm0rdij6pi1p.apps.googleusercontent.com' || 
+                GOOGLE_CLIENT_ID === '266274251473-e88r4lf2g36gfigqdn31tm0rdij6pi1p.apps.googleusercontent.com' || 
                 !GOOGLE_CLIENT_ID.includes('.apps.googleusercontent.com')) {
                 return false;
             }
@@ -263,7 +272,7 @@
         // จัดการ Apple Sign-In
         function signInWithApple() {
             // ตรวจสอบว่า Apple Service ID ถูกตั้งค่าหรือยัง
-            if (APPLE_SERVICE_ID === 'th.co.mfec.appsol.firebasetest' || APPLE_SERVICE_ID === '') {
+            if (APPLE_SERVICE_ID === 'th.co.mfec.appsol.firebasetest' || APPLE_SERVICE_ID === 'th.co.mfec.appsol.firebasetest') {
                 alert('⚠️ ยังไม่ได้ตั้งค่า Apple Service ID\nกรุณาแก้ไข APPLE_SERVICE_ID ในไฟล์ HTML');
                 return;
             }
