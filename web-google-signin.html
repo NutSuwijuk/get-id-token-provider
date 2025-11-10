@@ -147,9 +147,9 @@
         
         // ตรวจสอบว่า Google Client ID ถูกตั้งค่าหรือยัง
         function checkGoogleClientID() {
-            // ตรวจสอบว่าไม่ใช่ placeholder และมีรูปแบบที่ถูกต้อง
-            if (GOOGLE_CLIENT_ID === '266274251473-e88r4lf2g36gfigqdn31tm0rdij6pi1p.apps.googleusercontent.com' || 
-                GOOGLE_CLIENT_ID === '266274251473-e88r4lf2g36gfigqdn31tm0rdij6pi1p.apps.googleusercontent.com' || 
+            // ตรวจสอบว่าไม่ใช่ placeholder หรือค่าว่าง และมีรูปแบบที่ถูกต้อง
+            if (GOOGLE_CLIENT_ID === '' || 
+                GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com' ||
                 !GOOGLE_CLIENT_ID.includes('.apps.googleusercontent.com')) {
                 return false;
             }
@@ -272,7 +272,10 @@
         // จัดการ Apple Sign-In
         function signInWithApple() {
             // ตรวจสอบว่า Apple Service ID ถูกตั้งค่าหรือยัง
-            if (APPLE_SERVICE_ID === 'th.co.mfec.appsol.firebasetest' || APPLE_SERVICE_ID === 'th.co.mfec.appsol.firebasetest') {
+            // ตรวจสอบว่าไม่ใช่ค่าว่างหรือค่า placeholder
+            if (APPLE_SERVICE_ID === '' || 
+                APPLE_SERVICE_ID === 'YOUR_APPLE_SERVICE_ID' ||
+                APPLE_SERVICE_ID === 'example.com') {
                 alert('⚠️ ยังไม่ได้ตั้งค่า Apple Service ID\nกรุณาแก้ไข APPLE_SERVICE_ID ในไฟล์ HTML');
                 return;
             }
