@@ -271,11 +271,12 @@
 
         // จัดการ Apple Sign-In
         function signInWithApple() {
+            // Debug: แสดงค่า APPLE_SERVICE_ID ที่ใช้อยู่
+            console.log('APPLE_SERVICE_ID:', APPLE_SERVICE_ID);
+            
             // ตรวจสอบว่า Apple Service ID ถูกตั้งค่าหรือยัง
-            // ตรวจสอบว่าไม่ใช่ค่าว่างหรือค่า placeholder
-            if (APPLE_SERVICE_ID === '' || 
-                APPLE_SERVICE_ID === 'YOUR_APPLE_SERVICE_ID' ||
-                APPLE_SERVICE_ID === 'example.com') {
+            // ตรวจสอบเฉพาะค่าว่างเท่านั้น (ถ้ามีค่าแล้วให้ผ่านไป)
+            if (!APPLE_SERVICE_ID || APPLE_SERVICE_ID.trim() === '') {
                 alert('⚠️ ยังไม่ได้ตั้งค่า Apple Service ID\nกรุณาแก้ไข APPLE_SERVICE_ID ในไฟล์ HTML');
                 return;
             }
