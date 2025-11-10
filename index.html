@@ -110,6 +110,23 @@
             <small>หมายเหตุ: Apple Sign-In ต้องใช้ HTTPS หรือ localhost เท่านั้น</small>
         </p>
         
+        <!-- Apple Redirect URI Warning -->
+        <div id="appleRedirectWarning" style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #ffc107; display: none;">
+            <strong>⚠️ วิธีตั้งค่า Apple Sign-In Return URLs:</strong>
+            <p style="margin: 10px 0 0 0; font-size: 14px;">
+                <strong>Current Redirect URI:</strong> <code id="currentRedirectURI"></code><br>
+                <strong>วิธีแก้:</strong><br>
+                1. ไปที่ <a href="https://developer.apple.com/account/resources/identifiers/list/serviceId" target="_blank">Apple Developer Portal > Service IDs</a><br>
+                2. เลือก Service ID: <code>th.co.mfec.appsol.firebasetest</code><br>
+                3. เปิดใช้งาน "Sign in with Apple" และกด Configure<br>
+                4. ในส่วน "Website URLs" > "Return URLs" ให้เพิ่ม URL นี้:<br>
+                <code id="redirectURIToAdd"></code><br>
+                5. ในส่วน "Domains and Subdomains" ให้เพิ่ม domain:<br>
+                <code id="domainToAdd"></code><br>
+                6. Save และรอสักครู่ (อาจใช้เวลาสัก 2-3 นาที)
+            </p>
+        </div>
+        
         <!-- Result Display -->
         <div id="result" class="result" style="display: none;">
             <h3>✅ ID Token:</h3>
@@ -171,6 +188,28 @@
             }
             if (originWarning) {
                 originWarning.style.display = 'block';
+            }
+            
+            // แสดงข้อมูล Apple Redirect URI
+            const appleRedirectWarning = document.getElementById('appleRedirectWarning');
+            const currentRedirectURISpan = document.getElementById('currentRedirectURI');
+            const redirectURIToAddSpan = document.getElementById('redirectURIToAdd');
+            const domainToAddSpan = document.getElementById('domainToAdd');
+            
+            const redirectURI = window.location.origin + window.location.pathname;
+            const domain = window.location.hostname;
+            
+            if (currentRedirectURISpan) {
+                currentRedirectURISpan.textContent = redirectURI;
+            }
+            if (redirectURIToAddSpan) {
+                redirectURIToAddSpan.textContent = redirectURI;
+            }
+            if (domainToAddSpan) {
+                domainToAddSpan.textContent = domain;
+            }
+            if (appleRedirectWarning) {
+                appleRedirectWarning.style.display = 'block';
             }
         }
         
@@ -297,10 +336,17 @@
                 }
                 
                 // เริ่มต้น Apple Sign-In
+                // ตั้งค่า redirectURI ให้ตรงกับที่ตั้งค่าไว้ใน Apple Developer Portal
+                // ต้องตรงกับ Return URLs ที่ตั้งค่าไว้ใน Service ID configuration
+                const redirectURI = window.location.origin + window.location.pathname;
+                console.log('Apple Sign-In redirectURI:', redirectURI);
+                console.log('Current URL:', window.location.href);
+                console.log('Current Origin:', window.location.origin);
+                
                 AppleID.auth.init({
                     clientId: APPLE_SERVICE_ID,
                     scope: 'name email',
-                    redirectURI: window.location.origin,
+                    redirectURI: redirectURI,
                     usePopup: true
                 });
 
@@ -327,7 +373,19 @@
                     displayToken(idToken, 'apple.com');
                 }).catch((error) => {
                     console.error('Apple Sign-In Error:', error);
-                    alert('❌ เกิดข้อผิดพลาดในการ login ด้วย Apple:\n' + (error.message || error));
+                    const errorMessage = error.message || error.toString();
+                    
+                    // ตรวจสอบว่าเป็น redirect URI error หรือไม่
+                    if (errorMessage.includes('invalid_request') || 
+                        errorMessage.includes('redirect') || 
+                        errorMessage.includes('Invalid web redirect url')) {
+                        alert('❌ Error: Invalid redirect URL\n\n' +
+                              'กรุณาตรวจสอบว่าได้ตั้งค่า Return URLs ใน Apple Developer Portal แล้ว\n\n' +
+                              'Return URL ที่ต้องตั้งค่า:\n' + redirectURI + '\n\n' +
+                              'ดูคำแนะนำในหน้าเว็บด้านบน');
+                    } else {
+                        alert('❌ เกิดข้อผิดพลาดในการ login ด้วย Apple:\n' + errorMessage);
+                    }
                 });
             } catch (error) {
                 console.error('Apple Sign-In initialization error:', error);
