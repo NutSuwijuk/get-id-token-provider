@@ -111,19 +111,23 @@
         </p>
         
         <!-- Apple Redirect URI Warning -->
-        <div id="appleRedirectWarning" style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #ffc107; display: none;">
+        <div id="appleRedirectWarning" style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #ffc107; display: block;">
             <strong>⚠️ วิธีตั้งค่า Apple Sign-In Return URLs:</strong>
             <p style="margin: 10px 0 0 0; font-size: 14px;">
-                <strong>Current Redirect URI:</strong> <code id="currentRedirectURI"></code><br>
-                <strong>วิธีแก้:</strong><br>
-                1. ไปที่ <a href="https://developer.apple.com/account/resources/identifiers/list/serviceId" target="_blank">Apple Developer Portal > Service IDs</a><br>
-                2. เลือก Service ID: <code>th.co.mfec.appsol.firebasetest</code><br>
-                3. เปิดใช้งาน "Sign in with Apple" และกด Configure<br>
-                4. ในส่วน "Website URLs" > "Return URLs" ให้เพิ่ม URL นี้:<br>
-                <code id="redirectURIToAdd"></code><br>
-                5. ในส่วน "Domains and Subdomains" ให้เพิ่ม domain:<br>
-                <code id="domainToAdd"></code><br>
-                6. Save และรอสักครู่ (อาจใช้เวลาสัก 2-3 นาที)
+                <strong>📋 Return URL ที่ต้องตั้งค่า:</strong> <code id="currentRedirectURI" style="background: #fff; padding: 2px 6px; border-radius: 3px;">-</code><br>
+                <strong>🌐 Domain ที่ต้องตั้งค่า:</strong> <code id="domainToAdd" style="background: #fff; padding: 2px 6px; border-radius: 3px;">-</code><br><br>
+                <strong>🔧 ขั้นตอนการตั้งค่า:</strong><br>
+                1. ไปที่ <a href="https://developer.apple.com/account/resources/identifiers/list/serviceId" target="_blank" style="color: #0066cc;">Apple Developer Portal > Service IDs</a><br>
+                2. เลือก Service ID: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">th.co.mfec.appsol.firebasetest</code><br>
+                3. เปิดใช้งาน "Sign in with Apple" และกด <strong>Configure</strong><br>
+                4. ในส่วน <strong>"Website URLs"</strong>:<br>
+                   &nbsp;&nbsp;&nbsp;• <strong>Return URLs:</strong> เพิ่ม URL นี้: <code id="redirectURIToAdd" style="background: #fff; padding: 2px 6px; border-radius: 3px;">-</code><br>
+                   &nbsp;&nbsp;&nbsp;• <strong>Domains and Subdomains:</strong> เพิ่ม domain: <code id="domainToAdd2" style="background: #fff; padding: 2px 6px; border-radius: 3px;">-</code><br>
+                5. กด <strong>Save</strong> และรอ 2-3 นาที เพื่อให้การตั้งค่าใช้งานได้<br><br>
+                <strong>💡 หมายเหตุสำคัญ:</strong><br>
+                • Return URL ต้องตรงกันทุกตัวอักษร (รวม trailing slash <code>/</code>)<br>
+                • ถ้ายัง error อยู่ ให้ตรวจสอบว่า Return URL ใน Apple Developer Portal ตรงกับที่แสดงด้านบนหรือไม่<br>
+                • หลังจาก Save แล้วต้องรอ 2-3 นาที ก่อนทดสอบอีกครั้ง
             </p>
         </div>
         
@@ -195,8 +199,10 @@
             const currentRedirectURISpan = document.getElementById('currentRedirectURI');
             const redirectURIToAddSpan = document.getElementById('redirectURIToAdd');
             const domainToAddSpan = document.getElementById('domainToAdd');
+            const domainToAddSpan2 = document.getElementById('domainToAdd2');
             
-            const redirectURI = window.location.origin + window.location.pathname;
+            // สำหรับ Apple Sign-In ใช้ origin + '/' เท่านั้น
+            const redirectURI = window.location.origin + '/';
             const domain = window.location.hostname;
             
             if (currentRedirectURISpan) {
@@ -208,6 +214,10 @@
             if (domainToAddSpan) {
                 domainToAddSpan.textContent = domain;
             }
+            if (domainToAddSpan2) {
+                domainToAddSpan2.textContent = domain;
+            }
+            // แสดง warning ตลอดเวลาเพื่อให้เห็นคำแนะนำ
             if (appleRedirectWarning) {
                 appleRedirectWarning.style.display = 'block';
             }
@@ -337,11 +347,15 @@
                 
                 // เริ่มต้น Apple Sign-In
                 // ตั้งค่า redirectURI ให้ตรงกับที่ตั้งค่าไว้ใน Apple Developer Portal
-                // ต้องตรงกับ Return URLs ที่ตั้งค่าไว้ใน Service ID configuration
-                const redirectURI = window.location.origin + window.location.pathname;
-                console.log('Apple Sign-In redirectURI:', redirectURI);
+                // สำหรับ Apple Sign-In บนเว็บ ควรใช้ origin + '/' เท่านั้น (ไม่ใช้ pathname)
+                // ตัวอย่าง: 'https://get-id-token-provider-test.vercel.app/'
+                const redirectURI = window.location.origin + '/';
+                console.log('=== Apple Sign-In Configuration ===');
+                console.log('APPLE_SERVICE_ID:', APPLE_SERVICE_ID);
+                console.log('redirectURI:', redirectURI);
                 console.log('Current URL:', window.location.href);
                 console.log('Current Origin:', window.location.origin);
+                console.log('===================================');
                 
                 AppleID.auth.init({
                     clientId: APPLE_SERVICE_ID,
@@ -379,10 +393,21 @@
                     if (errorMessage.includes('invalid_request') || 
                         errorMessage.includes('redirect') || 
                         errorMessage.includes('Invalid web redirect url')) {
-                        alert('❌ Error: Invalid redirect URL\n\n' +
-                              'กรุณาตรวจสอบว่าได้ตั้งค่า Return URLs ใน Apple Developer Portal แล้ว\n\n' +
-                              'Return URL ที่ต้องตั้งค่า:\n' + redirectURI + '\n\n' +
-                              'ดูคำแนะนำในหน้าเว็บด้านบน');
+                        const errorAlert = '❌ Error: Invalid redirect URL\n\n' +
+                              '⚠️ ปัญหา: Return URL ใน Apple Developer Portal ไม่ตรงกับที่ใช้ในโค้ด\n\n' +
+                              '📋 Return URL ที่ต้องตั้งค่าใน Apple Developer Portal:\n' +
+                              redirectURI + '\n\n' +
+                              '🔧 วิธีแก้:\n' +
+                              '1. ไปที่ https://developer.apple.com/account/resources/identifiers/list/serviceId\n' +
+                              '2. เลือก Service ID: ' + APPLE_SERVICE_ID + '\n' +
+                              '3. เปิดใช้งาน "Sign in with Apple" และกด Configure\n' +
+                              '4. ในส่วน "Website URLs" > "Return URLs" ให้เพิ่ม URL นี้:\n' +
+                              redirectURI + '\n' +
+                              '5. ในส่วน "Domains and Subdomains" ให้เพิ่ม: ' + window.location.hostname + '\n' +
+                              '6. Save และรอ 2-3 นาที\n\n' +
+                              '💡 หมายเหตุ: Return URL ต้องตรงกันทุกตัวอักษร (รวม trailing slash /)';
+                        alert(errorAlert);
+                        console.error('Return URL ที่ต้องตั้งค่า:', redirectURI);
                     } else {
                         alert('❌ เกิดข้อผิดพลาดในการ login ด้วย Apple:\n' + errorMessage);
                     }
