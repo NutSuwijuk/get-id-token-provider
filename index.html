@@ -125,9 +125,11 @@
                    &nbsp;&nbsp;&nbsp;• <strong>Domains and Subdomains:</strong> เพิ่ม domain: <code id="domainToAdd2" style="background: #fff; padding: 2px 6px; border-radius: 3px;">-</code><br>
                 5. กด <strong>Save</strong> และรอ 2-3 นาที เพื่อให้การตั้งค่าใช้งานได้<br><br>
                 <strong>💡 หมายเหตุสำคัญ:</strong><br>
-                • Return URL ต้องตรงกันทุกตัวอักษร (รวม trailing slash <code>/</code>)<br>
+                • Return URL ต้องตรงกันทุกตัวอักษร (ไม่ต้องมี trailing slash <code>/</code>)<br>
+                • ตัวอย่าง: <code>https://get-id-token-provider-test1.vercel.app</code> (ไม่ใช่ <code>https://get-id-token-provider-test1.vercel.app/</code>)<br>
                 • ถ้ายัง error อยู่ ให้ตรวจสอบว่า Return URL ใน Apple Developer Portal ตรงกับที่แสดงด้านบนหรือไม่<br>
-                • หลังจาก Save แล้วต้องรอ 2-3 นาที ก่อนทดสอบอีกครั้ง
+                • หลังจาก Save แล้วต้องรอ 2-3 นาที ก่อนทดสอบอีกครั้ง<br>
+                • ตรวจสอบ Console (F12) เพื่อดู redirectURI ที่ใช้จริง
             </p>
         </div>
         
@@ -201,8 +203,8 @@
             const domainToAddSpan = document.getElementById('domainToAdd');
             const domainToAddSpan2 = document.getElementById('domainToAdd2');
             
-            // สำหรับ Apple Sign-In ใช้ origin + '/' เท่านั้น
-            const redirectURI = window.location.origin + '/';
+            // สำหรับ Apple Sign-In ใช้ origin เท่านั้น (ไม่ต้องมี trailing slash)
+            const redirectURI = window.location.origin;
             const domain = window.location.hostname;
             
             if (currentRedirectURISpan) {
@@ -347,14 +349,16 @@
                 
                 // เริ่มต้น Apple Sign-In
                 // ตั้งค่า redirectURI ให้ตรงกับที่ตั้งค่าไว้ใน Apple Developer Portal
-                // สำหรับ Apple Sign-In บนเว็บ ควรใช้ origin + '/' เท่านั้น (ไม่ใช้ pathname)
-                // ตัวอย่าง: 'https://get-id-token-provider-test.vercel.app/'
-                const redirectURI = window.location.origin + '/';
+                // สำหรับ Apple Sign-In บนเว็บ ใช้ origin เท่านั้น (ไม่ต้องมี trailing slash)
+                // ตัวอย่าง: 'https://get-id-token-provider-test1.vercel.app'
+                // ⚠️ สำคัญ: redirectURI ต้องตรงกับ Return URL ที่ตั้งค่าไว้ใน Apple Developer Portal ทุกตัวอักษร
+                const redirectURI = window.location.origin;
                 console.log('=== Apple Sign-In Configuration ===');
                 console.log('APPLE_SERVICE_ID:', APPLE_SERVICE_ID);
                 console.log('redirectURI:', redirectURI);
                 console.log('Current URL:', window.location.href);
                 console.log('Current Origin:', window.location.origin);
+                console.log('⚠️ ตรวจสอบว่า Return URL ใน Apple Developer Portal ตรงกับ:', redirectURI);
                 console.log('===================================');
                 
                 AppleID.auth.init({
@@ -405,7 +409,8 @@
                               redirectURI + '\n' +
                               '5. ในส่วน "Domains and Subdomains" ให้เพิ่ม: ' + window.location.hostname + '\n' +
                               '6. Save และรอ 2-3 นาที\n\n' +
-                              '💡 หมายเหตุ: Return URL ต้องตรงกันทุกตัวอักษร (รวม trailing slash /)';
+                              '💡 หมายเหตุ: Return URL ต้องตรงกันทุกตัวอักษร (ไม่ต้องมี trailing slash /)\n' +
+                              '   ตัวอย่าง: ' + redirectURI + ' (ไม่ใช่ ' + redirectURI + '/)';
                         alert(errorAlert);
                         console.error('Return URL ที่ต้องตั้งค่า:', redirectURI);
                     } else {
